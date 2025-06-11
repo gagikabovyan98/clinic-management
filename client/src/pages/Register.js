@@ -1,45 +1,71 @@
-import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useState } from 'react';
 
 function Register({ onRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('patient');
+  const [role, setRole] = useState('staff');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = role === 'patient' ? '/auth/patient/register' : '/auth/staff/register';
+    setError('');
+    const endpoint = role === 'staff' ? '/auth/staff/register' : '/auth/patient/register';
 
-    const res = await fetch(`http://localhost:3000${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      console.log(`http://localhost:3000${endpoint}`)
+      const res = await fetch(`http://localhost:3000${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      onRegister(); // переход на логин
-    } else {
-      alert(data.message || 'registration error');
+      const data = await res.json();
+      if (res.ok) {
+        onRegister();
+      } else {
+        setError(data.message || 'Something went wrong');
+      }
+    } catch (err) {
+      setError('Network error');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '2rem' }}>
-      <h2>Registration</h2>
-      <label>Email:</label>
-      <input value={email} onChange={e => setEmail(e.target.value)} type="email" required />
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8, p: 4, border: '1px solid #ccc', borderRadius: 2, boxShadow: 3 }}>
+      <Typography variant="h5" gutterBottom>Register</Typography>
+      <form onSubmit={handleSubmit}>
+        <FormControl fullWidth margin="normal">
+          <TextField label="Email" type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+        </FormControl>
 
-      <label>Password:</label>
-      <input value={password} onChange={e => setPassword(e.target.value)} type="password" required />
+        <FormControl fullWidth margin="normal">
+          <TextField label="Password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+        </FormControl>
 
-      <label>Role:</label>
-      <select value={role} onChange={e => setRole(e.target.value)}>
-        <option value="patient">Patient</option>
-        <option value="staff">Staff</option>
-      </select>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Role</InputLabel>
+          <Select value={role} label="Role" onChange={(e) => setRole(e.target.value)}>
+            <MenuItem value="staff">Staff</MenuItem>
+          </Select>
+        </FormControl>
 
-      <button type="submit">Register</button>
-    </form>
+        {error && <Typography color="error" mt={2}>{error}</Typography>}
+
+        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+          Register
+        </Button>
+      </form>
+    </Box>
   );
 }
 

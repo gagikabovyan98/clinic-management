@@ -6,13 +6,13 @@ export class Staff {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({nullable: true})
   name: string;
 
-  @Column()
+  @Column({nullable: true})
   role: string;
 
-  @Column()
+  @Column({nullable: true})
   phone: string;
 
   @Column({ unique: true })
@@ -21,7 +21,7 @@ export class Staff {
   @Column()
   password: string;
 
-  @Column()
+  @Column({nullable: true})
   specialization: string;
 
   @OneToMany(() => Appointment, appointment => appointment.staff)

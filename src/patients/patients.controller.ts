@@ -45,7 +45,7 @@ export class PatientsController {
     return this.patientsService.remove(+id);
   }
 
-  @UseGuards(AuthGuard)
+  
   @Get('me')
   @Roles(Role.Patient)
   getMe(@CurrentUser() user: JwtPayload) {

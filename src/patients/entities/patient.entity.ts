@@ -11,23 +11,20 @@ export class Patient {
   @Column()
   name: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   date_of_birth: string;
 
-  @Column()
+  @Column({nullable: true})
   gender: string;
 
-  @Column()
+  @Column({nullable: true})
   address: string;
 
-  @Column()
+  @Column({nullable: true})
   phone: string;
 
   @Column({ unique: true })
   email: string;
-
-  @Column()
-  password: string;
 
   @OneToMany(() => EHR, ehr => ehr.patient)
   ehrs: EHR[];

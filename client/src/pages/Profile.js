@@ -1,14 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Heading,
+  Text,
+  VStack,
+  Spinner,
+  useToast,
+} from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 
 function Profile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const toast = useToast();
 
   useEffect(() => {
     api('/patient/me')
-      .then(setProfile)
-      .catch(err => setError(err.message));
+      .then((data) => {
+        setProfile(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+        toast({
+          title: 'Error',
+          description: err.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
   }, []);
 
   const handleLogout = () => {
@@ -17,20 +41,25 @@ function Profile() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Patient Profile</h2>
-      <button onClick={handleLogout}>Logout</button>
+    <Box maxW="md" mx="auto" mt={10} p={6} borderWidth="1px" borderRadius="lg" boxShadow="md">
+      <VStack spacing={6} align="start">
+        <Heading size="lg" color="teal.600">Patient Profile</Heading>
+        <Button colorScheme="red" onClick={handleLogout} alignSelf="flex-end">
+          Logout
+        </Button>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {profile ? (
-        <div>
-          <p><strong>ID:</strong> {profile.id}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+        {loading ? (
+          <Spinner />
+        ) : error ? (
+          <Text color="red.500">{error}</Text>
+        ) : (
+          <>
+            <Text><b>ID:</b> {profile.id}</Text>
+            <Text><b>Email:</b> {profile.email}</Text>
+          </>
+        )}
+      </VStack>
+    </Box>
   );
 }
 

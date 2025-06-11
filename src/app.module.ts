@@ -13,8 +13,6 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UploadModule } from './upload/upload.module';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { AuthService } from './auth/auth.service';
 
 
 
@@ -28,7 +26,7 @@ import { AuthService } from './auth/auth.service';
       password: '118896',
       database: 'clinic',
       autoLoadEntities: true,
-      synchronize: false,
+      synchronize: true,
     }),
     ConfigModule.forRoot({
       isGlobal: true,

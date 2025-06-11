@@ -16,31 +16,16 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async registerPatient(dto: CreatePatientDto) {
-    const existing = await this.patientsService.findByEmail(dto.email);
-    if (existing) throw new ConflictException('Patient already exists');
-
-    const hash = await bcrypt.hash(dto.password, 10);
-    return this.patientsService.create({ ...dto, password: hash });
-  }
-
   async registerStaff(dto: CreateStaffDto) {
     const existing = await this.staffService.findByEmail(dto.email);
     if (existing) throw new ConflictException('Staff already exists');
 
     const hash = await bcrypt.hash(dto.password, 10);
-    return this.staffService.create({ ...dto, password: hash });
-  }
-
-  async loginPatient(dto: LoginDto) {
-    const user = await this.patientsService.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
-
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
-
-    const token = await this.generateToken(user.id, Role.Patient);
-    return { access_token: token };
+    return this.staffService.create({
+      ...dto,
+      password: hash,
+      role: Role.Staff,
+    });
   }
 
   async loginStaff(dto: LoginDto) {

@@ -45,6 +45,11 @@ export class EhrController {
     return this.ehrService.remove(id);
   }
 
+  @Get('/patient/:patientId')
+  findByPatient(@Param('patientId', ParseIntPipe) patientId: number) {
+    return this.ehrService.findByPatientId(patientId);
+  }
+
   
   @Post(':id/upload')
   @Roles(Role.Staff)

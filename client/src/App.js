@@ -1,28 +1,18 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './pages/Register';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import { useState } from 'react';
 
 function App() {
-  const [isLoggedIn, setLoggedIn] = useState(!!localStorage.getItem('token'));
-
-  const PrivateRoute = ({ children }) => {
-    return isLoggedIn ? children : <Navigate to="/login" />;
-  };
+  const [setIsLoggedIn] = useState(false);
 
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login onLogin={() => setLoggedIn(true)} />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/register" element={<Register onRegister={() => window.location.href = '/login'} />} />
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="/register" element={<Register onRegister={() => setIsLoggedIn(true)} />} />
+        <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );

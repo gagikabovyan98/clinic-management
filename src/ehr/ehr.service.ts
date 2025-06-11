@@ -58,6 +58,13 @@ export class EhrService {
     await this.ehrRepository.remove(ehr);
   }
 
+  async findByPatientId(patientId: number): Promise<EHR[]> {
+  return this.ehrRepository.find({
+    where: { patient: { id: patientId } },
+    relations: ['patient'],
+  });
+ }
+
   async addImages(id: number, imagePaths: string[]) {
     const ehr = await this.ehrRepository.findOneBy({ id });
     if (!ehr) throw new NotFoundException('EHR not found');

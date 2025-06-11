@@ -6,13 +6,20 @@ import { v4 as uuid } from 'uuid';
 export class UploadService {
   private s3 = new AWS.S3({
     region: 'us-east-1',
-    accessKeyId: 'AKIAU5MDZEXAMPLE',
-    secretAccessKey: 'VN9k...EXAMPLE',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'FAKE_KEY',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'FAKE_SECRET',
   });
 
   private bucketName = 'clinic-management-demo-bucket';
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
+    // Если FAKE_KEY, то просто возвращаем заглушку
+    if (process.env.AWS_ACCESS_KEY_ID === 'FAKE_KEY') {
+      const fakeUrl = `https://example.com/fake-s3/${uuid()}-${file.originalname}`;
+      console.log('FAKE UPLOAD:', fakeUrl);
+      return fakeUrl;
+    }
+
     const key = `uploads/${uuid()}-${file.originalname}`;
 
     await this.s3
