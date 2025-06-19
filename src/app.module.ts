@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UploadModule } from './upload/upload.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RoomsModule } from './rooms/rooms.module';
 
 
 
@@ -27,6 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
       database: 'clinic',
       autoLoadEntities: true,
       synchronize: true,
+      dropSchema: true,
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -41,6 +43,7 @@ import { JwtModule } from '@nestjs/jwt';
     AppointmentsModule,
     UploadModule,
     AuthModule,
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService,

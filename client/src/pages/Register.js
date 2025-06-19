@@ -2,24 +2,22 @@ import {
   Box,
   Button,
   FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Register({ onRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('staff');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const endpoint = role === 'staff' ? '/auth/staff/register' : '/auth/patient/register';
+    const endpoint = '/auth/staff/register';
 
     try {
       console.log(`http://localhost:3000${endpoint}`)
@@ -32,6 +30,7 @@ function Register({ onRegister }) {
       const data = await res.json();
       if (res.ok) {
         onRegister();
+        navigate('/login');
       } else {
         setError(data.message || 'Something went wrong');
       }
@@ -50,13 +49,6 @@ function Register({ onRegister }) {
 
         <FormControl fullWidth margin="normal">
           <TextField label="Password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
-        </FormControl>
-
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Role</InputLabel>
-          <Select value={role} label="Role" onChange={(e) => setRole(e.target.value)}>
-            <MenuItem value="staff">Staff</MenuItem>
-          </Select>
         </FormControl>
 
         {error && <Typography color="error" mt={2}>{error}</Typography>}

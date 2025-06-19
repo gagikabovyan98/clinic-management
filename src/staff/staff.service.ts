@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Staff } from './entities/staff.entity';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
+import { Role } from 'src/auth/roles.enum';
 
 
 
@@ -16,6 +17,9 @@ export class StaffService {
 
   create(createStaffDto: CreateStaffDto) {
     const staff = this.staffRepository.create(createStaffDto);
+    staff.email = createStaffDto.email;
+    staff.password = createStaffDto.password;
+    staff.role = createStaffDto.role || Role.Staff;
     return this.staffRepository.save(staff);
   }
 

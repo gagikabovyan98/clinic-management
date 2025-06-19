@@ -13,7 +13,6 @@ export class UploadService {
   private bucketName = 'clinic-management-demo-bucket';
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    // Если FAKE_KEY, то просто возвращаем заглушку
     if (process.env.AWS_ACCESS_KEY_ID === 'FAKE_KEY') {
       const fakeUrl = `https://example.com/fake-s3/${uuid()}-${file.originalname}`;
       console.log('FAKE UPLOAD:', fakeUrl);

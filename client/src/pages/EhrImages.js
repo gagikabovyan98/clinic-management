@@ -1,4 +1,3 @@
-// src/components/EhrImages.js
 import {
   Box,
   Button,

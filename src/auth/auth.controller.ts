@@ -19,4 +19,11 @@ export class AuthController {
   loginStaff(@Body() dto: LoginDto) {
     return this.authService.loginStaff(dto);
   }
+
+  @Public()
+  @Post('patients/login')
+  loginPatient(@Body() dto: LoginDto) {
+    return this.authService.loginStaff(dto);
+  }
+
 }

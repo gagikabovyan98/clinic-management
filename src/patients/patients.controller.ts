@@ -16,31 +16,31 @@ export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
   @Post()
-  @Roles(Role.Staff, Role.Patient)
+  @Roles(Role.Staff)
   create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientsService.create(createPatientDto);
   }
 
   @Get()
-  @Roles(Role.Staff, Role.Patient)
+  @Roles(Role.Staff)
   findAll() {
     return this.patientsService.findAll();
   }
 
   @Get(':id')
-  @Roles(Role.Staff, Role.Patient)
+  @Roles(Role.Staff)
   findOne(@Param('id') id: string) {
     return this.patientsService.findOne(+id);
   }
 
   @Patch(':id')
-  @Roles(Role.Staff, Role.Patient)
+  @Roles(Role.Staff)
   update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
     return this.patientsService.update(+id, updatePatientDto);
   }
 
   @Delete(':id')
-  @Roles(Role.Staff, Role.Patient)
+  @Roles(Role.Staff)
   remove(@Param('id') id: string) {
     return this.patientsService.remove(+id);
   }

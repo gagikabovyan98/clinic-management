@@ -26,6 +26,10 @@ export class Patient {
   @Column({ unique: true })
   email: string;
 
+  @Column()
+  @Column({nullable: true})
+  password: string;
+
   @OneToMany(() => EHR, ehr => ehr.patient)
   ehrs: EHR[];
 

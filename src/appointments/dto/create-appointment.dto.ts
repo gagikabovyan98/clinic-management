@@ -8,9 +8,13 @@ export class CreateAppointmentDto {
   staffId: number;
 
   @IsDateString()
+  @IsNotEmpty()
   appointmentDate: string;
 
   @IsNotEmpty()
   @IsString()
   reason: string;
+
+  @IsInt()
+  roomId: number;
 }
