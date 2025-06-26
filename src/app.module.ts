@@ -21,14 +21,13 @@ import { RoomsModule } from './rooms/rooms.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: process.env.DB_HOST || 'db',
       port: 5432,
-      username: 'postgres', 
-      password: '118896',
-      database: 'clinic',
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      database: process.env.DB_NAME || 'clinic',
       autoLoadEntities: true,
       synchronize: true,
-      dropSchema: true,
     }),
     ConfigModule.forRoot({
       isGlobal: true,

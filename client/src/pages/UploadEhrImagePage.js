@@ -1,41 +1,51 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Button, TextField, MenuItem, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  CircularProgress,
+} from '@mui/material';
 
 function UploadEhrImagePage() {
-  const [ehrs, setEhrs] = useState([]);
-  const [ehrId, setEhrId] = useState('');
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState('');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('http://localhost:3000/ehr', {
+    fetch('http://localhost:3000/patient', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
-      .then(setEhrs)
+      .then(data => setPatients(Array.isArray(data) ? data : data.patients || []))
       .catch(console.error);
-  }, []);
+  }, [token]);
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file || !ehrId) return;
+  const handleUpload = async () => {
+    if (!file || !selectedPatient) return;
     setLoading(true);
-
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch(`http://localhost:3000/upload/image/${ehrId}`, {
+      const res = await fetch(`http://localhost:3000/ehr/upload/${selectedPatient}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
+
       if (!res.ok) throw new Error('Upload failed');
-      alert('File uploaded!');
-      setFile(null);
+      alert('Image uploaded successfully');
     } catch (err) {
-      alert('Upload error');
+      console.error(err);
+      alert('Failed to upload');
     } finally {
       setLoading(false);
     }
@@ -44,35 +54,38 @@ function UploadEhrImagePage() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Uploading an image to a medical history
+        Upload Medical Image
       </Typography>
 
-      <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <TextField
-          select
-          label="Choose EHR"
-          value={ehrId}
-          onChange={(e) => setEhrId(e.target.value)}
-          required
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <InputLabel>Patient</InputLabel>
+        <Select
+          value={selectedPatient}
+          label="Patient"
+          onChange={(e) => setSelectedPatient(e.target.value)}
         >
-          {ehrs.map(ehr => (
-            <MenuItem key={ehr.id} value={ehr.id}>
-              #{ehr.id} — {ehr.diagnosis}
+          {patients.map((p) => (
+            <MenuItem key={p.id} value={p.id}>
+              {p.name} (#{p.id})
             </MenuItem>
           ))}
-        </TextField>
+        </Select>
+      </FormControl>
 
-        <TextField
-          type="file"
-          inputProps={{ accept: 'image/*' }}
-          onChange={(e) => setFile(e.target.files[0])}
-          required
-        />
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+        style={{ marginTop: '1rem' }}
+      />
 
-        <Button type="submit" variant="contained" disabled={loading || !file}>
-          {loading ? 'Loadind...' : 'Load'}
-        </Button>
-      </form>
+      <Button
+        variant="contained"
+        onClick={handleUpload}
+        disabled={loading || !file || !selectedPatient}
+        sx={{ mt: 2 }}
+      >
+        {loading ? <CircularProgress size={24} /> : 'Upload'}
+      </Button>
     </Box>
   );
 }

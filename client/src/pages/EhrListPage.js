@@ -1,50 +1,59 @@
+import { useParams } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
 function EhrListPage() {
-  const [ehrs, setEhrs] = useState([]);
+  const { patientId } = useParams();
+  const [ehrList, setEhrList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('http://localhost:3000/ehr', {
-      headers: { Authorization: `Bearer ${token}` },
+    const token = localStorage.getItem('token');
+    fetch(`http://localhost:3000/ehr/patient/${patientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then(res => res.json())
-      .then(data => setEhrs(data))
+      .then(data => setEhrList(data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [patientId]);
 
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Истории болезней
+        EHR Images for Patient #{patientId}
       </Typography>
 
       {loading ? (
-        <CircularProgress />
+        <CircularProgress sx={{ mt: 4 }} />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Diagnosis</TableCell>
-              <TableCell>Patient</TableCell>
-              <TableCell>Data</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {ehrs.map(ehr => (
-              <TableRow key={ehr.id}>
-                <TableCell>{ehr.id}</TableCell>
-                <TableCell>{ehr.diagnosis}</TableCell>
-                <TableCell>{ehr.patient?.name || '—'}</TableCell>
-                <TableCell>{new Date(ehr.createdAt).toLocaleDateString()}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {ehrList.map((ehr) => (
+            <Grid item key={ehr.id} xs={12} sm={6} md={4}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={`http://localhost:3000/uploads/ehr/${ehr.imageUrl}`}
+                  alt={`EHR image ${ehr.id}`}
+                />
+                <CardContent>
+                  <Typography variant="subtitle2">EHR ID: {ehr.id}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       )}
     </Box>
   );

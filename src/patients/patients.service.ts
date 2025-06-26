@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -13,8 +14,12 @@ export class PatientsService {
     private patientRepository: Repository<Patient>,
   ) {}
 
-  create(createPatientDto: CreatePatientDto) {
-    const patient = this.patientRepository.create(createPatientDto);
+  async create(createPatientDto: CreatePatientDto) {
+    const hash = await bcrypt.hash(createPatientDto.password, 10);
+    const patient = this.patientRepository.create({
+      ...createPatientDto,
+      password: hash,
+    });
     return this.patientRepository.save(patient);
   }
 

@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -30,6 +30,18 @@ export class AppointmentsService {
     if (!staff) throw new NotFoundException('Staff not found');
     if (!room) throw new NotFoundException('Room not found');
 
+    const isRoomBusy = await this.appointmentRepo.findOne({
+      where: {
+        room: { id: dto.roomId },
+        appointmentDate: dto.appointmentDate,
+        status: In(['scheduled', 'in-progress']), // если есть статус завершения — можно убрать completed
+      },
+    });
+
+    if (isRoomBusy) {
+      throw new ConflictException('Room is already occupied at this time');
+    }
+
     const appointment = this.appointmentRepo.create({
       appointmentDate: dto.appointmentDate,
       reason: dto.reason,
@@ -37,10 +49,11 @@ export class AppointmentsService {
       patient,
       staff,
       room,
-  });
+    });
 
-  return this.appointmentRepo.save(appointment);
-}
+    return this.appointmentRepo.save(appointment);
+  }
+
 
   async findAll() {
     return this.appointmentRepo.find({

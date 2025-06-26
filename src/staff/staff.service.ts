@@ -17,9 +17,6 @@ export class StaffService {
 
   create(createStaffDto: CreateStaffDto) {
     const staff = this.staffRepository.create(createStaffDto);
-    staff.email = createStaffDto.email;
-    staff.password = createStaffDto.password;
-    staff.role = createStaffDto.role || Role.Staff;
     return this.staffRepository.save(staff);
   }
 

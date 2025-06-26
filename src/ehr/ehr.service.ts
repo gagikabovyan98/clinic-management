@@ -17,9 +17,7 @@ export class EhrService {
 
   async create(createEhrDto: CreateEhrDto): Promise<EHR> {
     const patient = await this.patientRepository.findOneBy({ id: createEhrDto.patientId });
-    if (!patient) {
-      throw new NotFoundException('Patient not found');
-    }
+    if (!patient) throw new NotFoundException('Patient not found');
     const ehr = this.ehrRepository.create({ ...createEhrDto, patient });
     return this.ehrRepository.save(ehr);
   }
@@ -30,40 +28,46 @@ export class EhrService {
 
   async findOne(id: number): Promise<EHR> {
     const ehr = await this.ehrRepository.findOne({ where: { id }, relations: ['patient'] });
-    if (!ehr) {
-      throw new NotFoundException(`EHR with id ${id} not found`);
-    }
+    if (!ehr) throw new NotFoundException(`EHR with id ${id} not found`);
     return ehr;
   }
 
-
   async update(id: number, updateEhrDto: UpdateEhrDto): Promise<EHR> {
     const ehr = await this.ehrRepository.preload({ id, ...updateEhrDto });
-    if (!ehr) {
-      throw new NotFoundException(`EHR with id ${id} not found`);
-    }
+    if (!ehr) throw new NotFoundException(`EHR with id ${id} not found`);
+
     if (updateEhrDto.patientId) {
       const patient = await this.patientRepository.findOneBy({ id: updateEhrDto.patientId });
       if (!patient) throw new NotFoundException('Patient not found');
       ehr.patient = patient;
     }
+
     return this.ehrRepository.save(ehr);
   }
 
   async remove(id: number): Promise<void> {
     const ehr = await this.findOne(id);
-    if (!ehr) {
-      throw new NotFoundException(`EHR with id ${id} not found`);
-    }
     await this.ehrRepository.remove(ehr);
   }
 
   async findByPatientId(patientId: number): Promise<EHR[]> {
-  return this.ehrRepository.find({
-    where: { patient: { id: patientId } },
-    relations: ['patient'],
-  });
- }
+    return this.ehrRepository.find({
+      where: { patient: { id: patientId } },
+      relations: ['patient'],
+    });
+  }
+
+  async saveImage(patientId: number, filename: string) {
+    const patient = await this.patientRepository.findOneBy({ id: patientId });
+    if (!patient) throw new NotFoundException('Patient not found');
+
+    const ehr = this.ehrRepository.create({
+      patient,
+      imageUrl: filename,
+    });
+
+    return this.ehrRepository.save(ehr);
+  }
 
   async addImages(id: number, imagePaths: string[]) {
     const ehr = await this.ehrRepository.findOneBy({ id });
@@ -71,4 +75,5 @@ export class EhrService {
     ehr.images = [...(ehr.images || []), ...imagePaths];
     return this.ehrRepository.save(ehr);
   }
+
 }

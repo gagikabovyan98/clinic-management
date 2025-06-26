@@ -23,7 +23,7 @@ export class AuthController {
   @Public()
   @Post('patients/login')
   loginPatient(@Body() dto: LoginDto) {
-    return this.authService.loginStaff(dto);
+    return this.authService.loginPatient(dto);
   }
 
 }

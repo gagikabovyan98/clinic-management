@@ -18,6 +18,12 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto);
   }
 
+  @Get('available/:date')
+  @Roles(Role.Staff)
+  findAvailable(@Param('date') date: string) {
+    return this.roomsService.findAvailableRooms(new Date(date));
+  }
+
   @Get()
   @Roles(Role.Staff)
   findAll() {

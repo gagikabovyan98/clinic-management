@@ -11,10 +11,10 @@ function Home() {
       </Typography>
       <Box sx={{ mb: 2 }}>
         <Button variant="contained" onClick={() => navigate('/staff/login')} sx={{ mr: 1 }}>
-          Войти как сотрудник
+          Login as employee
         </Button>
         <Button variant="outlined" onClick={() => navigate('/register')}>
-            Login as an employee
+          Register as an employee
         </Button>
       </Box>
       <Button variant="contained" onClick={() => navigate('/patient/login')}>

@@ -6,13 +6,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-function PatientLogin() {
+function PatientLogin({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +27,9 @@ function PatientLogin() {
 
       if (res.ok) {
         localStorage.setItem('token', data.access_token);
-        navigate('/patient/dashboard');
+        const payload = JSON.parse(atob(data.access_token.split('.')[1]));
+        localStorage.setItem('role', payload.role);
+        onLogin?.();
       } else {
         setError(data.message || 'Login failed');
       }

@@ -17,6 +17,19 @@ export class RoomsService {
     return this.roomRepository.save(room);
   }
 
+  async findAvailableRooms(date: Date) {
+    const rooms = await this.roomRepository.find({ relations: ['appointments'] });
+
+    const availableRooms = rooms.filter(room => {
+      return !room.appointments.some(app => {
+        const appDate = new Date(app.appointmentDate).toDateString();
+        return appDate === date.toDateString();
+      });
+    });
+
+    return availableRooms;
+  }
+
   findAll() {
     return this.roomRepository.find();
   }

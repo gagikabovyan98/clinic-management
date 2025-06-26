@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  Req,
+} from '@nestjs/common';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../auth/roles.enum';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -6,9 +19,8 @@ import { RolesGuard } from '../auth/roles.guard';
 import { CreateEhrDto } from './dto/create-ehr.dto';
 import { UpdateEhrDto } from './dto/update-ehr.dto';
 import { EhrService } from './ehr.service';
-import { diskStorage } from 'multer';
-import { extname } from 'path'
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('ehr')
@@ -46,30 +58,25 @@ export class EhrController {
   }
 
   @Get('/patient/:patientId')
+  @Roles(Role.Staff, Role.Patient)
   findByPatient(@Param('patientId', ParseIntPipe) patientId: number) {
     return this.ehrService.findByPatientId(patientId);
   }
 
-  
-  @Post(':id/upload')
+  @Post('upload/:patientId')
+  @UseInterceptors(FileInterceptor('file'))
   @Roles(Role.Staff)
-  @UseInterceptors(
-    FilesInterceptor('files', 5, {
-      storage: diskStorage({
-        destination: './uploads/ehr',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  async uploadImages(
-    @Param('id', ParseIntPipe) id: number,
-    @UploadedFiles() files: Express.Multer.File[],
+  uploadImage(
+    @Param('patientId', ParseIntPipe) patientId: number,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const paths = files.map(file => file.path);
-    return this.ehrService.addImages(id, paths);
+    return this.ehrService.saveImage(patientId, file.filename);
   }
 
+  @Get('records')
+  @Roles(Role.Patient)
+  getRecordsForPatient(@Req() req: Request) {
+    const user = req.user as { userId: number };
+    return this.ehrService.findByPatientId(user.userId);
+  }
 }
